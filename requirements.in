@@ -1,0 +1,17 @@
+# Direct dependency pins. requirements.txt also pins their resolved dependencies.
+fastapi==0.162.0
+starlette==1.10.0
+uvicorn==0.34.2
+SQLAlchemy==2.0.40
+aiosqlite==0.21.0
+pydantic==2.11.3
+pydantic-settings==2.8.1
+httpx==0.28.1
+# Patched Starlette's supported TestClient backend.
+httpx2==2.16.0
+# Pin the local virtual-environment installer after its security audit.
+pip==26.2.2
+pytest==9.2.0
+pytest-asyncio==1.4.1
+# Patched AnyIO; all tests still treat warnings as errors.
+anyio==4.15.1
