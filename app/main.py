@@ -25,7 +25,7 @@ def create_app(settings: Settings | None = None, ai_client: AIClient | None = No
         finally:
             await database.close()
 
-    application = FastAPI(title="TradePulse AI — synthetic demonstration", lifespan=lifespan)
+    application = FastAPI(title="TradePulse AI - synthetic demonstration", lifespan=lifespan)
     application.state.settings = settings
     application.state.ai_client = ai_client if ai_client is not None else MockAIClient()
     application.include_router(router)

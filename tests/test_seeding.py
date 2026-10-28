@@ -74,7 +74,13 @@ async def test_seed_failure_rolls_back_partial_inserts(database):
 async def test_baseline_costs_contribution_and_integer_storage(seeded):
     async with seeded.transaction() as session:
         baseline = await session.get(RouteBaseline, SEED_ROUTE_ID)
-        assert baseline.monthly_contribution_minor == 45000
+        assert baseline.currency == "NGN"
+        assert baseline.monthly_revenue_minor == 200000000
+        assert baseline.monthly_cogs_minor == 140000000
+        assert baseline.monthly_fulfillment_minor == 10000000
+        assert baseline.monthly_incentive_minor == 0
+        assert baseline.monthly_other_costs_minor == 5000000
+        assert baseline.monthly_contribution_minor == 45000000
         assert baseline.monthly_contribution_minor == baseline.monthly_revenue_minor - baseline.monthly_cogs_minor - baseline.monthly_fulfillment_minor - baseline.monthly_incentive_minor - baseline.monthly_other_costs_minor
         for column in RouteBaseline.__table__.columns:
             if column.name.endswith("_minor"):

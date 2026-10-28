@@ -17,14 +17,14 @@ class SeedConflictError(ValueError):
 
 
 def synthetic_rows() -> tuple[dict, list[dict]]:
-    revenue = Decimal("2000.00")
-    cogs = Decimal("1400.00")
-    fulfillment = Decimal("100.00")
+    revenue = Decimal("2000000.00")
+    cogs = Decimal("1400000.00")
+    fulfillment = Decimal("100000.00")
     incentive = Decimal("0.00")
-    other = Decimal("50.00")
+    other = Decimal("50000.00")
     baseline = {
         "id": SEED_ROUTE_ID, "route_code": "SYNTHETIC-ROUTE-001",
-        "name": "Synthetic Demonstration Route", "currency": "GBP",
+        "name": "Synthetic Demonstration Route", "currency": "NGN",
         "created_at": SEED_TIMESTAMP, "data_source": "synthetic",
         "period_start": "2026-10-01", "period_days": 31,
         "total_retailers": 10, "active_retailers": 2,

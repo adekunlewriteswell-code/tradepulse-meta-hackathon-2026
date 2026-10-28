@@ -1,4 +1,4 @@
-# TradePulse AI — Milestone 1
+# TradePulse AI  -  Milestone 1
 
 TradePulse AI explores evidence-based activation of inactive FMCG retailers.
 This original implementation for the Meta Global AI Developer Hackathon 2026,
@@ -9,7 +9,7 @@ retailer workflow, user interface, reward engine, or real Meta inference.
 All competition source was written for this entry. It is independent of existing
 commercial products; no commercial code, data, schemas, or credentials are included.
 
-**SYNTHETIC DEMONSTRATION DATA — not verified commercial transactions.**
+**SYNTHETIC DEMONSTRATION DATA  -  not verified commercial transactions.**
 See [SYNTHETIC_DATA_NOTICE.md](SYNTHETIC_DATA_NOTICE.md).
 
 ## Project structure
@@ -89,7 +89,7 @@ Both entry points work:
 ```
 
 On a fresh database, seeding creates 10 retailers (2 ACTIVE, 8 INACTIVE) and one
-route baseline. Every row is labelled `data_source="synthetic"`, with invented
+NGN route baseline. Every row is labelled `data_source="synthetic"`, with invented
 names, stable IDs, and fixed timestamps. Baseline money and period are fixed.
 Seeding is transactional and insert-only: repeats leave all row values unchanged,
 restore missing fixture rows, and preserve subsequent status changes. It is not
@@ -118,8 +118,8 @@ local server stopped; keep a database backup before changing an existing schema.
 ## Exact monetary representation
 
 All monetary columns use **signed 64-bit SQLite INTEGER minor units**, with a
-fixed two-decimal scale. GBP is the invented demonstration baseline currency:
-1999 minor units means GBP 19.99. Costs, prices, rewards, and snapshots never
+fixed two-decimal scale. NGN is the Nigerian naira demonstration currency:
+250000 minor units means NGN 2,500.00 (250,000 kobo). Costs, prices, rewards, and snapshots never
 use SQLite REAL or SQLAlchemy Numeric. Nonnegative money fields have database
 type/range checks; contribution may be negative. Monetary conversion accepts
 Decimal or decimal strings and rejects floats, nonfinite values, fractional
@@ -138,16 +138,17 @@ confidence scores may use floats; they are not money. SQLite's distinction
 between exact integers and approximate reals is documented
 [here](https://www.sqlite.org/floatingpoint.html).
 
-The synthetic monthly baseline is GBP 2,000 revenue minus GBP 1,400 COGS,
-GBP 100 fulfillment, GBP 0 incentives, and GBP 50 other costs = GBP 450
+The synthetic monthly baseline is NGN 2,000,000 revenue minus NGN 1,400,000 COGS,
+NGN 100,000 fulfillment, NGN 0 incentives, and NGN 50,000 other costs = NGN 450,000
 contribution. This is an arbitrary route baseline for the two existing active
 retailers; the eight inactive retailers have no seeded purchases. It is not an
 estimate of real performance. Baseline comparison and mission profitability
 evaluation belong to later milestones.
 
-GBP is the current fixture currency. A switch to NGN, with an explicitly chosen
-synthetic amount set, remains a product decision. No currency labels or amounts
-have been converted or relabelled.
+NGN is the current fixture currency. The monetary amounts are fictional naira
+values selected for this demonstration, not an exchange-rate conversion.
+Existing local databases are not silently converted by the insert-only seeder;
+any previous synthetic fixture requires a verified backup and controlled upgrade.
 
 ## Integrity and audit boundaries
 

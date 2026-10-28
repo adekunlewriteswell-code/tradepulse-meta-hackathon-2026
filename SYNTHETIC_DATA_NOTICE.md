@@ -17,6 +17,6 @@ Mock AI responses carry `data_source="mock"` and an explicit MOCK uncertainty
 statement. They do not represent real Meta inference or verified commercial
 facts. Structural/evidence validation does not establish commercial correctness.
 
-**SIMULATED DEMONSTRATION DATA — not verified commercial transactions.**
+**SIMULATED DEMONSTRATION DATA  -  not verified commercial transactions.**
 This prototype demonstrates software mechanisms; it does not prove real-world
 retailer activation, profitability, or incentive effectiveness.
