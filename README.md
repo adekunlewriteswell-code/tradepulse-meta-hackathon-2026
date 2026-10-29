@@ -1,11 +1,13 @@
-# TradePulse AI - Milestone 2
+# TradePulse AI - Milestone 3
 
 TradePulse AI explores evidence-based activation of inactive FMCG retailers.
 This original implementation for the Meta Global AI Developer Hackathon 2026,
 started October 27, provides a local FastAPI foundation, synthetic SQLite data,
 an injectable mock, and an offline-tested Meta HTTP adapter operating on persisted
-synthetic observations. User interfaces, the retailer workflow and reward engine remain
-future work. Genuine Meta inference requires separate authorization and has not been run.
+synthetic observations. A local browser demo now connects a numbered-menu retailer
+session to a manager's evidence-linked activation brief and demo-only review.
+Mission approval, purchase verification and rewards remain future work.
+Genuine Meta inference requires separate authorization and has not been run.
 
 All competition source was written for this entry. It is independent of existing
 commercial products; no commercial code, data, schemas, or credentials are included.
@@ -27,6 +29,8 @@ app/database.py       Async database lifecycle, transactions, and audit guards
 data/                 Synthetic seeder entry points; no database is distributed
 tests/                Offline health, persistence, validation, and regression tests
 docs/ai_integration.md Provider contract, safety controls and provenance boundaries
+app/web/              Local HTML, CSS and JavaScript; no CDN or build step
+docs/local_demo.md    Local browser workflow, security and state contract
 ```
 
 ## Runtime and installation
@@ -68,6 +72,18 @@ Pinning alone is not a dependency security audit or a guarantee against vulnerab
 
 ## Configuration
 
+For the browser demonstration, run the following command and open
+`http://127.0.0.1:8000/demo`:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.demo --mode simulated
+```
+
+This explicitly enables a local-only demo, seeds the synthetic NGN route and forces
+offline inference. Normal startup keeps demo routes disabled. See
+[docs/local_demo.md](docs/local_demo.md) for the retailer journey, security boundaries,
+demo-only human review and persistence/retry behavior. No new dependencies or CDN needed.
+
 No `.env` or credentials are required. Defaults match `.env.example`; optionally
 copy that example to `.env`, which is ignored. Environment variables override
 the file, which is read only from the workspace root.
@@ -76,6 +92,8 @@ the file, which is read only from the workspace root.
 |---|---|---|
 | `DATABASE_URL` | `sqlite+aiosqlite:///./data/tradepulse.db` | File-backed SQLite database, restricted to this workspace; URI options and other database drivers rejected |
 | `USE_MOCK_AI` | `true` | Default application client is mock; false selects Meta only when live gates/key permit |
+| `DEMO_ENABLED` | `false` | Explicit local-only browser write gate; launcher enables it with offline clients |
+| `DEMO_DEFAULT_MODE` | `simulated` | Initial offline manager selector; mock or simulated only |
 | `META_LIVE_ENABLED` | `false` | Explicit live-network gate; remains disabled during offline validation |
 | `MODEL_API_KEY` | none | Secret server-side environment value; never expose in browser, output or provenance |
 | `META_MODEL` | `muse-spark-1.3` | Configurable model; endpoint is restricted to the trusted Meta HTTPS host |
@@ -190,7 +208,9 @@ representation; database checks/triggers reject other offsets, invalid dates,
 and incomplete or whitespace-only required metadata. This validates metadata,
 not manager authentication or permission to approve a mission.
 
-Only read-only HTTP routes exist. Mission approval, manager authentication,
+Default startup exposes only read-only HTTP routes. The explicitly enabled local
+browser demo adds loopback-only, CSRF-protected demonstration endpoints.
+Mission approval, manager authentication,
 state transition enforcement, returning existing rows on duplicate HTTP
 requests, reward eligibility, and atomic reward-release-plus-audit orchestration
 remain deferred. No purchase/reward write endpoint is exposed without those
@@ -201,7 +221,8 @@ future gates. Database constraints are the foundation for those services.
 See [docs/ai_integration.md](docs/ai_integration.md). `AIClient` is an async
 protocol; `MockAIClient` supplies explicit mock results. `create_app()` supports
 client injection, and FastAPI's `get_ai_client` dependency can be overridden.
-No AI HTTP endpoint is exposed; tests attach a test-only route for dependency resolution.
+Default startup has no AI HTTP endpoint; the separately gated local browser demonstration
+provides an offline analysis action using the same stored-evidence service.
 StoredAnalysisService loads observations from SQLite, claims an idempotency key, analyzes
 outside database transactions, and saves safe provenance. Old AI rows survive a nullable
 column upgrade; legacy raw observation arrays are preserved but require explicit re-ingestion

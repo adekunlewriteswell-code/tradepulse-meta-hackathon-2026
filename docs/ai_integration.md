@@ -7,7 +7,9 @@
 | Live | Real MetaAIClient with HTTPS and server-side key | meta_live | Only after separate authorization |
 
 Live access is disabled by default. Provider failure never becomes mock success.
-The HTTP API remains read-only; the demonstration uses a local CLI.
+The default HTTP API remains read-only. The explicitly enabled localhost browser demo
+adds protected offline analysis, reusing the same stored-observation service. See
+[local_demo.md](local_demo.md) for its boundaries; no live browser mode is exposed.
 
 ## Trusted persisted observations
 

@@ -11,5 +11,5 @@ async def health() -> dict[str, str]:
 @router.get("/")
 async def root(request: Request) -> dict[str, str]:
     client = request.app.state.ai_client
-    return {"service": "TradePulse AI", "milestone": "2",
+    return {"service": "TradePulse AI", "milestone": "3",
             "ai_mode": getattr(client, "inference_mode", "mock")}

@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite+aiosqlite:///./data/tradepulse.db"
     use_mock_ai: bool = True
+    demo_enabled: bool = False
+    demo_default_mode: Literal['mock', 'simulated'] = 'simulated'
     model_api_key: SecretStr | None = Field(default=None, repr=False)
     meta_live_enabled: bool = False
     meta_base_url: Literal["https://api.meta.ai/v1"] = "https://api.meta.ai/v1"

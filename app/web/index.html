@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A local synthetic FMCG retailer observation and evidence-linked intelligence demonstration.">
+  <title>TradePulse AI - Route intelligence</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315392c'/%3E%3Cpath d='M9 22 23 9M10 9h13v13' stroke='%23dcee9a' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/demo/assets/demo.css">
+  <script src="/demo/assets/demo.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/demo"><span class="brand-icon" aria-hidden="true">↗</span> TradePulse<span class="ai">AI</span></a>
+    <p class="workspace-label">FIELD INTELLIGENCE</p>
+    <nav aria-label="Demonstration views">
+      <button class="nav-item active" id="nav-retailer" type="button" aria-current="page"><span aria-hidden="true">▤</span> Retailer simulator <span class="nav-number">01</span></button>
+      <button class="nav-item" id="nav-manager" type="button"><span aria-hidden="true">◈</span> Manager intelligence <span class="nav-number">02</span></button>
+    </nav>
+    <div class="sidebar-note"><span class="status-dot"></span> LOCAL DEMONSTRATION<p>Listen first.<br>Understand the barrier.<br>Plan with evidence.</p></div>
+    <div class="sidebar-footer">Built for Nigerian FMCG routes.<br><span>Meta Global AI Developer Hackathon 2026</span></div>
+  </aside>
+  <main>
+    <header class="topbar"><span>WORKSPACE <span class="slash">/</span> Synthetic route 001</span><span class="local-tag"><span class="status-dot"></span> LOCAL ONLY</span></header>
+    <div class="demo-notice"><strong>SYNTHETIC DEMONSTRATION</strong><span>Invented retailers and observations. No purchases, mission approvals or rewards.</span></div>
+    <div id="global-error" class="notice error" role="alert" hidden></div>
+    <div class="intro"><div><p class="eyebrow">FROM A RETAILER SIGNAL TO A BETTER QUESTION</p><h1 id="page-title">Every inactive retailer<br>has a reason.</h1><p id="page-description" class="description">A simple numbered menu. A traceable observation.<br>A clearer starting point for the route manager.</p></div><div class="chapter"><span id="chapter-number">01</span><p id="chapter-label">CAPTURE THE SIGNAL</p></div></div>
+    <section id="retailer-view" aria-label="Retailer USSD simulator">
+      <div class="retailer-layout">
+        <div class="journey-panel">
+          <div class="section-label"><span class="tiny-line"></span> RETAILER EXPERIENCE</div>
+          <h2>No app. Just a conversation<br>in numbered steps.</h2>
+          <p class="muted">This browser simulates a feature-phone session. Every transition is saved by the local application.</p>
+          <label for="retailer">Choose a fictional retailer</label>
+          <select id="retailer" disabled><option>Loading synthetic route…</option></select>
+          <p class="field-note">The selected identity is fictional, not verified by a telecom provider.</p>
+          <ol class="steps"><li><span>1</span><div><strong>Share an interest</strong><p>Select a product using its menu number.</p></div></li><li><span>2</span><div><strong>Name the barrier</strong><p>Minimum order, delivery, capital or availability.</p></div></li><li><span>3</span><div><strong>Save the evidence</strong><p>An observation, never a sale or proven demand.</p></div></li></ol>
+          <button id="view-manager" class="text-button" type="button">Open manager intelligence <span aria-hidden="true">↗</span></button>
+        </div>
+        <div class="phone-area">
+          <div class="phone"><div class="phone-brand">TRADEPULSE <span>FIELD CONNECT</span></div><div class="speaker"></div>
+            <div class="phone-screen"><div class="phone-status"><span aria-hidden="true">▂▄▆</span><span>SYNTHETIC NETWORK</span><span aria-hidden="true">▰</span></div>
+              <div id="terminal" aria-live="polite"><p class="terminal-kicker">WELCOME TO YOUR ROUTE</p><h3>Small signals.<br>Useful conversations.</h3><p>Dial the demonstration code to begin.</p><p class="dial-code">*000*001#</p><p class="terminal-note">Browser simulation only.<br>No telecom connection or charge.</p></div>
+            </div>
+            <div class="phone-controls"><button id="back" type="button" disabled>Back</button><span aria-hidden="true">●</span><button id="cancel" type="button" disabled>Cancel</button></div>
+            <div class="keypad" aria-label="Numbered USSD keypad"><button data-digit="1" type="button">1<span>●</span></button><button data-digit="2" type="button">2<span>ABC</span></button><button data-digit="3" type="button">3<span>DEF</span></button><button data-digit="4" type="button">4<span>GHI</span></button><button data-digit="5" type="button">5<span>JKL</span></button><button data-digit="6" type="button">6<span>MNO</span></button><button data-digit="7" type="button">7<span>PQRS</span></button><button data-digit="8" type="button">8<span>TUV</span></button><button data-digit="9" type="button">9<span>WXYZ</span></button><span class="key-decoration" aria-hidden="true">*</span><button data-digit="0" type="button">0<span>EXIT</span></button><span class="key-decoration" aria-hidden="true">#</span></div>
+            <button id="dial" class="dial-button" type="button" disabled>Start a session <span aria-hidden="true">↗</span></button>
+          </div>
+          <p id="session-status" class="session-caption" role="status">Preparing the local demonstration…</p>
+          <button id="retry-session" class="text-button" type="button" hidden>Retry the same request</button>
+        </div>
+      </div>
+    </section>
+    <section id="manager-view" aria-label="Manager intelligence" hidden>
+      <div class="route-metrics"><article><p>FICTIONAL ROUTE</p><strong>10 <span>retailers</span></strong><small>One synthetic route</small></article><article><p>ORIGINAL BASELINE</p><strong>2 <span>active</span><span class="metric-divider">/</span>8 <span>inactive</span></strong><small>Fixed history, not activation measured today</small></article><article><p>STORED SIGNALS</p><strong id="observation-count">0</strong><small>Self-reported observations, not purchases</small></article></div>
+      <div class="manager-layout"><section class="panel evidence-panel"><div class="panel-heading"><div><p class="eyebrow">01 / THE RETAILER'S WORDS</p><h2>Evidence inbox</h2></div><button id="refresh" class="icon-button" type="button" aria-label="Refresh saved evidence">↻</button></div><p class="muted small">Select up to 8 saved observations. Only compatible synthetic records can be analyzed. Showing the newest 100.</p><div id="evidence-list" class="evidence-list" aria-live="polite"></div><div class="analysis-controls"><label for="mode">Inference mode</label><select id="mode"><option value="simulated">Simulated Meta HTTP transport</option><option value="mock">Deterministic mock</option></select><p class="field-note">Both are offline. Genuine Meta inference has not been performed.</p><button id="analyze" class="primary-button" type="button" disabled>Analyze selected evidence <span id="selected-count">0 / 8</span></button><button id="retry-analysis" class="text-button" type="button" hidden>Retry or reconcile the same analysis key</button><p id="analysis-status" class="small muted" role="status">Choose an observation to begin.</p></div></section>
+      <section class="panel intelligence-panel"><div class="panel-heading"><div><p class="eyebrow">02 / THE MODEL'S INTERPRETATION</p><h2>Activation brief</h2></div><span class="mode-badge" id="mode-label">NO ANALYSIS</span></div><label for="history" class="small">Saved offline analyses</label><select id="history"><option value="">Select a saved analysis</option></select><div id="analysis-result" aria-live="polite"><div class="empty-state"><span aria-hidden="true">◈</span><h3>Evidence before action.</h3><p>Select retailer observations to create a cautious, cited activation brief.</p></div></div></section></div>
+      <details class="route-details"><summary>Inspect the fictional route and baseline</summary><div class="baseline-notice"><strong>SYNTHETIC FINANCIAL BASELINE</strong><p>Monthly revenue <span id="baseline-revenue"></span> · Contribution <span id="baseline-contribution"></span>. Fictional historical amounts, not new commercial outcomes.</p></div><div id="retailer-list" class="retailer-grid"></div></details>
+    </section>
+    <footer class="page-footer"><span>TradePulse AI <span aria-hidden="true">/</span> Listen. Understand. Plan.</span><span>Observations are not purchases. Recommendations are not approvals.</span></footer>
+  </main>
+  <dialog id="evidence-dialog"><div class="dialog-heading"><h2>Inspect the evidence</h2><button id="close-dialog" type="button" class="icon-button" aria-label="Close evidence">×</button></div><div id="evidence-detail"></div></dialog>
+</body>
+</html>

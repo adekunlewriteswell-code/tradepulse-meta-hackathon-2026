@@ -20,3 +20,8 @@ facts. Structural/evidence validation does not establish commercial correctness.
 **SIMULATED DEMONSTRATION DATA  -  not verified commercial transactions.**
 This prototype demonstrates software mechanisms; it does not prove real-world
 retailer activation, profitability, or incentive effectiveness.
+
+The local browser's retailer sessions and managerial review events are explicitly
+labelled synthetic demonstration records. Marking a recommendation reviewed, accepted
+for planning or rejected does not authenticate a manager or authorize a mission,
+purchase, payment or reward. Simulated HTTP analysis is not genuine Meta inference.
