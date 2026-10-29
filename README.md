@@ -1,31 +1,32 @@
-# TradePulse AI  -  Milestone 1
+# TradePulse AI - Milestone 2
 
 TradePulse AI explores evidence-based activation of inactive FMCG retailers.
 This original implementation for the Meta Global AI Developer Hackathon 2026,
 started October 27, provides a local FastAPI foundation, synthetic SQLite data,
-and an injectable deterministic mock AI client. It does not yet implement the
-retailer workflow, user interface, reward engine, or real Meta inference.
+an injectable mock, and an offline-tested Meta HTTP adapter operating on persisted
+synthetic observations. User interfaces, the retailer workflow and reward engine remain
+future work. Genuine Meta inference requires separate authorization and has not been run.
 
 All competition source was written for this entry. It is independent of existing
 commercial products; no commercial code, data, schemas, or credentials are included.
 
-**SYNTHETIC DEMONSTRATION DATA  -  not verified commercial transactions.**
+**SYNTHETIC DEMONSTRATION DATA - not verified commercial transactions.**
 See [SYNTHETIC_DATA_NOTICE.md](SYNTHETIC_DATA_NOTICE.md).
 
 ## Project structure
 
 ```text
 app/routers/          HTTP routes
-app/services/         AI analysis and transactional synthetic seeding
+app/services/         Stored observations, AI provenance and transactional synthetic seeding
 app/domain/           Exact money conversion and UTC timestamp validation
 app/models/db/        SQLAlchemy models and database constraints
 app/models/schemas/   Pydantic request, response, and metadata contracts
-app/ai/               AI client protocol and deterministic mock
+app/ai/               Client protocol, deterministic mock, Meta HTTP adapter and simulation
 app/config.py         Environment settings and local database restrictions
 app/database.py       Async database lifecycle, transactions, and audit guards
 data/                 Synthetic seeder entry points; no database is distributed
 tests/                Offline health, persistence, validation, and regression tests
-docs/ai_integration.md Mock AI contract and provenance boundaries
+docs/ai_integration.md Provider contract, safety controls and provenance boundaries
 ```
 
 ## Runtime and installation
@@ -74,10 +75,14 @@ the file, which is read only from the workspace root.
 | Variable | Default | Behavior |
 |---|---|---|
 | `DATABASE_URL` | `sqlite+aiosqlite:///./data/tradepulse.db` | File-backed SQLite database, restricted to this workspace; URI options and other database drivers rejected |
-| `USE_MOCK_AI` | `true` | Must be true; false causes a clear factory error, without contacting a provider |
+| `USE_MOCK_AI` | `true` | Default application client is mock; false selects Meta only when live gates/key permit |
+| `META_LIVE_ENABLED` | `false` | Explicit live-network gate; remains disabled during offline validation |
+| `MODEL_API_KEY` | none | Secret server-side environment value; never expose in browser, output or provenance |
+| `META_MODEL` | `muse-spark-1.3` | Configurable model; endpoint is restricted to the trusted Meta HTTPS host |
 
-There is no real Meta client, API key configuration, billing configuration,
-deployment configuration, or outgoing model call in this milestone.
+The Meta adapter is implemented. Offline mock/simulated workflows need no real credential.
+No genuine model call, billing change or deployment was performed. See
+[AI integration](docs/ai_integration.md) for all bounds, failure rules and limitations.
 
 ## Seed and persistence
 
@@ -118,8 +123,9 @@ local server stopped; keep a database backup before changing an existing schema.
 ## Exact monetary representation
 
 All monetary columns use **signed 64-bit SQLite INTEGER minor units**, with a
-fixed two-decimal scale. NGN is the Nigerian naira demonstration currency:
-250000 minor units means NGN 2,500.00 (250,000 kobo). Costs, prices, rewards, and snapshots never
+fixed two-decimal scale. Nigerian naira (NGN) is the fictional route currency;
+minor units are kobo. 1999 kobo means NGN 19.99 (₦19.99), and 250,000 kobo means
+NGN 2,500.00. Costs, prices, rewards, and snapshots never
 use SQLite REAL or SQLAlchemy Numeric. Nonnegative money fields have database
 type/range checks; contribution may be negative. Monetary conversion accepts
 Decimal or decimal strings and rejects floats, nonfinite values, fractional
@@ -149,6 +155,15 @@ NGN is the current fixture currency. The monetary amounts are fictional naira
 values selected for this demonstration, not an exchange-rate conversion.
 Existing local databases are not silently converted by the insert-only seeder;
 any previous synthetic fixture requires a verified backup and controlled upgrade.
+`format_ngn()` renders exact kobo as grouped naira, such as ₦2,000,000.00.
+For an intact original legacy fixture, an explicit backed-up correction is available:
+
+```powershell
+.\.venv\Scripts\python.exe -m data.correct_currency --backup .tmp/pre-ngn-correction.db
+```
+
+It refuses changed fixtures or existing activity, preserves the backup, and is repeatable.
+Ordinary seeding refuses a legacy currency rather than silently relabelling it.
 
 ## Integrity and audit boundaries
 
@@ -181,13 +196,26 @@ requests, reward eligibility, and atomic reward-release-plus-audit orchestration
 remain deferred. No purchase/reward write endpoint is exposed without those
 future gates. Database constraints are the foundation for those services.
 
-## Mock AI and provenance
+## Stored observations and Meta integration
 
 See [docs/ai_integration.md](docs/ai_integration.md). `AIClient` is an async
 protocol; `MockAIClient` supplies explicit mock results. `create_app()` supports
 client injection, and FastAPI's `get_ai_client` dependency can be overridden.
-No AI HTTP endpoint is exposed in Milestone 1; tests attach a test-only route
-to verify actual FastAPI dependency resolution.
+No AI HTTP endpoint is exposed; tests attach a test-only route for dependency resolution.
+StoredAnalysisService loads observations from SQLite, claims an idempotency key, analyzes
+outside database transactions, and saves safe provenance. Old AI rows survive a nullable
+column upgrade; legacy raw observation arrays are preserved but require explicit re-ingestion
+into the new versioned raw-session representation before this workflow can analyze them.
+
+```powershell
+.\.venv\Scripts\python.exe -m data.analyze_observations --mode mock --seed-observations --analysis-key demo-mock
+.\.venv\Scripts\python.exe -m data.analyze_observations --mode simulated --analysis-key demo-simulated
+```
+
+The second command exercises the real adapter through an in-memory HTTP fixture.
+It is labelled simulated and does not call Meta. Both commands print synthetic NGN
+baseline values, validation status, recommendations, evidence IDs and uncertainty.
+Reusing a key returns the saved outcome; changing its inputs/mode is rejected.
 
 ## Tests
 
@@ -204,13 +232,13 @@ Both seed commands also run in child Python processes against a local test DB.
 Temporary databases live under `.test-artifacts/pytest` inside this workspace.
 Pytest replaces that disposable directory on each run; do not store work in it.
 
-The verified Windows CPython 3.13.5 environment passed 167 tests on October 28,
-2026. This is a recorded result, not a guarantee for other environments. The
-command above reproduces the suite without credentials or external services.
+The suite covers the foundation and integration with injected transports. It runs without
+credentials or external services. Python 3.13.5 on Windows is the verified runtime;
+other platforms/interpreters and a separate clean installation have not been verified.
 
 ## Publication status
 
-This source package contains the Milestone 1 foundation, tests, and public
+This project contains the backend foundation, stored-observation integration, tests, and public
 technical documentation. It excludes internal planning, engineering reports,
 local databases, virtual environments, caches, credentials, and test artifacts.
 No license has been selected; licensing and final organizer requirements remain

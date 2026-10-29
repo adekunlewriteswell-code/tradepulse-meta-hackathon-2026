@@ -65,4 +65,11 @@ class AnalysisResponse(StrictSchema):
             unknown = cited - allowed
             if unknown:
                 raise ValueError(f"Evidence references unknown observation IDs: {sorted(unknown)}")
+            if "products" in info.context and set(self.extracted_products) - set(info.context["products"]):
+                raise ValueError("Extracted products must have supplied evidence")
+            if "barriers" in info.context and any(
+                item.barrier != info.context["barriers"].get(item.evidence)
+                for item in self.stated_barriers
+            ):
+                raise ValueError("Stated barriers must copy the associated retailer statement")
         return self

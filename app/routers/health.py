@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 router = APIRouter()
 
@@ -9,5 +9,7 @@ async def health() -> dict[str, str]:
 
 
 @router.get("/")
-async def root() -> dict[str, str]:
-    return {"service": "TradePulse AI", "milestone": "1", "ai_mode": "mock"}
+async def root(request: Request) -> dict[str, str]:
+    client = request.app.state.ai_client
+    return {"service": "TradePulse AI", "milestone": "2",
+            "ai_mode": getattr(client, "inference_mode", "mock")}

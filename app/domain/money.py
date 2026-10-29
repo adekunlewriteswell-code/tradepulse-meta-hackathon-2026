@@ -41,3 +41,9 @@ def from_minor_units(amount: int, *, signed: bool = False) -> Decimal:
     if not (MIN_MINOR_UNITS if signed else 0) <= amount <= MAX_MINOR_UNITS:
         raise ValueError("Minor units outside storage bounds")
     return Decimal((int(amount < 0), tuple(map(int, str(abs(amount)))), -2))
+
+
+def format_ngn(kobo: int) -> str:
+    """Format exact integer kobo for local financial output."""
+    amount = from_minor_units(kobo, signed=True)
+    return f"-\u20a6{amount.copy_abs():,.2f}" if amount < 0 else f"\u20a6{amount:,.2f}"

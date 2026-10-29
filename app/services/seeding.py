@@ -53,6 +53,8 @@ async def seed_synthetic(database: Database) -> None:
             existing_route.data_source != "synthetic" or existing_route.route_code != baseline["route_code"]
         ):
             raise SeedConflictError("Synthetic route identifier conflicts with existing provenance")
+        if existing_route is not None and existing_route.currency != "NGN":
+            raise SeedConflictError("Legacy currency requires the explicit backed-up currency correction")
         await session.execute(insert(RouteBaseline).values(**baseline).on_conflict_do_nothing(index_elements=["id"]))
         for retailer in retailers:
             existing = await session.get(Retailer, retailer["id"])

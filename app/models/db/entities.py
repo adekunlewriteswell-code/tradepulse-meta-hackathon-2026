@@ -186,6 +186,10 @@ class AIExtraction(Record, Base):
     parse_status: Mapped[str] = mapped_column(String(24))
     validation_status: Mapped[str] = mapped_column(String(32))
     error: Mapped[str | None] = mapped_column(Text)
+    analysis_key: Mapped[str | None] = mapped_column(String(160), unique=True, index=True)
+    request_fingerprint: Mapped[str | None] = mapped_column(String(64))
+    run_state: Mapped[str | None] = mapped_column(String(16))
+    call_details: Mapped[dict | None] = mapped_column(JSON)
 
 
 @event.listens_for(Mission, 'before_insert')

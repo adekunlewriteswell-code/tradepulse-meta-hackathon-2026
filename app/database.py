@@ -43,6 +43,7 @@ class Database:
     async def create_schema(self) -> None:
         async with self.engine.begin() as connection:
             await connection.run_sync(Base.metadata.create_all)
+            await self._upgrade_ai_provenance(connection)
             await self._upgrade_audit_identity(connection)
             # Guards also protect existing route/mission tables: create_all does
             # not retrofit their CHECK constraints. Never silently repair bad rows.
@@ -87,6 +88,23 @@ class Database:
                           OR EXISTS (SELECT 1 FROM json_tree(NEW.{column}) WHERE type = 'real')
                         BEGIN SELECT RAISE(ABORT, 'snapshot and audit numbers must be exact integers'); END
                     """)
+
+    async def _upgrade_ai_provenance(self, connection) -> None:
+        """Add nullable provenance columns without rebuilding or discarding records."""
+        columns = {row[1]: row for row in (await connection.exec_driver_sql('PRAGMA table_info(ai_extractions)')).all()}
+        for name, sql_type in (("analysis_key", "VARCHAR(160)"),
+                               ("request_fingerprint", "VARCHAR(64)"),
+                               ("run_state", "VARCHAR(16)"), ("call_details", "JSON")):
+            if name not in columns:
+                await connection.exec_driver_sql(f'ALTER TABLE ai_extractions ADD COLUMN {name} {sql_type}')
+            elif columns[name][2].upper() != sql_type:
+                raise RuntimeError('Custom AI provenance schema requires explicit migration review')
+        await connection.exec_driver_sql('CREATE UNIQUE INDEX IF NOT EXISTS ix_ai_extractions_analysis_key ON ai_extractions(analysis_key)')
+        indexes = (await connection.exec_driver_sql('PRAGMA index_list(ai_extractions)')).all()
+        target = next(row for row in indexes if row[1] == 'ix_ai_extractions_analysis_key')
+        fields = (await connection.exec_driver_sql('PRAGMA index_info(ix_ai_extractions_analysis_key)')).all()
+        if not target[2] or [row[2] for row in fields] != ['analysis_key']:
+            raise RuntimeError('Custom AI analysis-key index requires explicit migration review')
 
     async def _upgrade_audit_identity(self, connection) -> None:
         """One targeted, transactional upgrade; preserve every declared audit column."""

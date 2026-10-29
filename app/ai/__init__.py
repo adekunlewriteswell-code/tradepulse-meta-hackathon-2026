@@ -1,1 +1,1 @@
-"""Injectable AI boundary. No network client exists in Milestone 1."""
+"""Injectable mock and Meta boundaries; live access is disabled by default."""

@@ -19,6 +19,7 @@ class AIClient(Protocol):
 class MockAIClient:
     model_name = "mock-deterministic-v1"
     data_source = "mock"
+    inference_mode = "mock"
 
     async def extract_and_strategise(self, payload: AnalysisRequest) -> str:
         observations = sorted(payload.observations, key=lambda item: item.id)
