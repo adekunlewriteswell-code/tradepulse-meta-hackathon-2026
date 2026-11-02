@@ -45,6 +45,7 @@ async def test_meta_structured_request_and_complete_safe_trace(settings, analysi
         assert str(request.url) == "https://api.meta.ai/v1/chat/completions"
         assert request.headers["authorization"] == "Bearer " + FAKE_KEY
         assert body["max_completion_tokens"] == 2048
+        assert body["reasoning_effort"] == "low"
         assert body["messages"][0] == {"role": "developer", "content": INSTRUCTIONS}
         schema = body["response_format"]["json_schema"]
         assert schema["strict"] is True
@@ -58,10 +59,11 @@ async def test_meta_structured_request_and_complete_safe_trace(settings, analysi
         result = await AIAnalysisService(client).analyze(analysis_request)
         assert result.output is not None
         assert result.provenance.data_source == "meta_simulated"
-        assert result.provenance.prompt_version == "meta-barriers-strategies-v1"
+        assert result.provenance.prompt_version == "meta-barriers-strategies-v2"
         details = result.provenance.call_details
         assert details["provider"] == "Meta Model API"
         assert details["inference_mode"] == "simulated"
+        assert details["provider_request"]["reasoning_effort"] == "low"
         assert details["usage"]["total_tokens"] == 50
         assert details["provider_request_id"] == "synthetic-id"
         assert len(details["attempt_history"]) == len(calls) == 1

@@ -196,12 +196,12 @@ class DemoService:
             row = await session.get(AIExtraction, data.analysis_id)
             if (row is None or row.route_baseline_id != SEED_ROUTE_ID or row.run_state != 'DONE'
                     or row.validation_status != 'EXTRACTION_VALID' or not row.parsed_output
-                    or row.data_source not in ('mock', 'meta_simulated')):
-                raise DemoError('Review requires a valid saved offline recommendation.', 422)
+                    or row.data_source not in ('mock', 'meta_simulated', 'meta_live')):
+                raise DemoError('Review requires a valid saved recommendation.', 422)
             try:
-                output = AnalysisResponse.model_validate(row.parsed_output,
-                    context={'observation_ids': row.observation_ids})
-            except ValidationError:
+                from app.services.saved_intelligence import validated_saved_output
+                _, output = await validated_saved_output(self.database, row)
+            except ValueError:
                 raise DemoError('Saved recommendation is invalid; no review was recorded.', 422) from None
             if data.strategy_index >= len(output.activation_strategies):
                 raise DemoError('Select a strategy present in the saved recommendation.', 422)

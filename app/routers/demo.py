@@ -7,7 +7,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import FileResponse
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from pydantic import ValidationError
 
 from app.ai.meta import strict_json
@@ -16,6 +16,8 @@ from app.domain.money import format_ngn
 from app.models.db import AIExtraction, AuditLog, Observation, Retailer, RouteBaseline
 from app.models.schemas.ai import AnalysisResponse
 from app.models.schemas.demo import AnalyzeSelection, ReviewDecision, SessionAction, StartSession
+from app.models.schemas.workflow import ApproveMission, DraftMission, RecordCommitment, ReleaseReward, SimulatedPurchase
+from app.services.mission_workflow import MissionWorkflow
 from app.services.demo import DemoError, DemoService, audit_values, digest
 from app.services.observations import ObservationDataError, StoredSession, load_stored_observations
 from app.services.seeding import SEED_ROUTE_ID
@@ -98,7 +100,9 @@ async def overview(request: Request, owner=Depends(browser)):
         ).order_by(Observation.created_at.desc(), Observation.id.desc()).limit(100))).all()
         analyses = (await session.scalars(select(AIExtraction).where(
             AIExtraction.route_baseline_id == SEED_ROUTE_ID,
-            AIExtraction.data_source.in_(['mock', 'meta_simulated'])
+            or_(AIExtraction.data_source.in_(['mock', 'meta_simulated']), and_(
+                AIExtraction.data_source == 'meta_live', AIExtraction.validation_status == 'EXTRACTION_VALID',
+                AIExtraction.run_state == 'DONE'))
         ).order_by(AIExtraction.created_at.desc()).limit(20))).all()
         evidence = []
         for row in observations:
@@ -134,21 +138,22 @@ async def analysis_view(database, row_id):
     async with database.transaction() as session:
         row = await session.get(AIExtraction, row_id)
         if (row is None or row.route_baseline_id != SEED_ROUTE_ID
-                or row.data_source not in ('mock', 'meta_simulated')):
+                or row.data_source not in ('mock', 'meta_simulated', 'meta_live')
+                or row.data_source == 'meta_live' and row.validation_status != 'EXTRACTION_VALID'):
             raise DemoError('Saved offline analysis not found.', 404)
         reviews = (await session.scalars(select(AuditLog).where(
             AuditLog.event == 'DEMO_RECOMMENDATION_REVIEW', AuditLog.source_event_id == row.id
         ).order_by(AuditLog.created_at.desc()).limit(100))).all()
     output = None
     if row.validation_status == 'EXTRACTION_VALID' and row.parsed_output:
-        payload = await load_stored_observations(database, SEED_ROUTE_ID, row.observation_ids)
+        from app.services.saved_intelligence import validated_saved_output
         try:
-            output = AnalysisResponse.model_validate(row.parsed_output, context={
-                'observation_ids': row.observation_ids, 'products': {p for v in payload.observations for p in v.products},
-                'barriers': {v.id: v.stated_barrier for v in payload.observations}}).model_dump(mode='json')
-        except ValidationError:
+            _, validated = await validated_saved_output(database, row)
+            output = validated.model_dump(mode='json')
+        except (ValueError, ObservationDataError):
             raise DemoError('Saved analysis failed current evidence validation; no result is displayed.', 422) from None
-    return {'id': row.id, 'mode': 'mock' if row.data_source == 'mock' else 'simulated',
+    return {'id': row.id, 'mode': {'mock': 'mock', 'meta_simulated': 'simulated', 'meta_live': 'live'}[row.data_source],
+            'provider': 'Local deterministic fixture' if row.data_source == 'mock' else 'Meta Model API',
             'model': row.model_name, 'status': row.validation_status, 'run_state': row.run_state,
             'created_at': row.created_at, 'observation_ids': row.observation_ids, 'output': output,
             'error_category': (row.call_details or {}).get('error_category'),
@@ -196,3 +201,33 @@ async def trace(observation_id: str, request: Request, owner=Depends(browser)):
 @router.post('/api/reviews')
 async def review(data: ReviewDecision, request: Request, owner=Depends(browser)):
     return await DemoService(request.app.state.database).review(owner, data)
+
+
+@router.get('/api/financials')
+async def financials(request: Request, owner=Depends(browser)):
+    return await MissionWorkflow(request.app.state.database).dashboard(owner)
+
+
+@router.post('/api/missions')
+async def draft_mission(data: DraftMission, request: Request, owner=Depends(browser)):
+    return await MissionWorkflow(request.app.state.database).draft(owner, data)
+
+
+@router.post('/api/missions/{mission_id}/approve')
+async def approve_mission(mission_id: str, data: ApproveMission, request: Request, owner=Depends(browser)):
+    return await MissionWorkflow(request.app.state.database).approve(owner, mission_id, data)
+
+
+@router.post('/api/missions/{mission_id}/commitments')
+async def commitment(mission_id: str, data: RecordCommitment, request: Request, owner=Depends(browser)):
+    return await MissionWorkflow(request.app.state.database).commit(owner, mission_id, data)
+
+
+@router.post('/api/missions/{mission_id}/purchases')
+async def simulated_purchase(mission_id: str, data: SimulatedPurchase, request: Request, owner=Depends(browser)):
+    return await MissionWorkflow(request.app.state.database).purchase(owner, mission_id, data)
+
+
+@router.post('/api/missions/{mission_id}/release')
+async def simulated_release(mission_id: str, data: ReleaseReward, request: Request, owner=Depends(browser)):
+    return await MissionWorkflow(request.app.state.database).release(owner, mission_id, data)

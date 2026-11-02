@@ -37,7 +37,10 @@ The configured model defaults to muse-spark-1.3. Developer instructions separate
 retailer statements from instructions; the user data is JSON encoded. The request uses
 response_format.json_schema with strict=true and a schema derived from AnalysisResponse.
 max_completion_tokens bounds visible/reasoning output. Prompt version is
-meta-barriers-strategies-v1; provider contract version is analysis-contract-v2.
+meta-barriers-strategies-v2; provider contract version is analysis-contract-v2.
+Evidence fields are constrained to enums of the supplied observation IDs; the developer
+instructions require bare IDs without appended explanations. Independent validation still
+requires exact evidence IDs and exact copying of the associated retailer statements.
 
 Envelope checks reject model mismatch, refusals, incomplete generations, tools, malformed
 usage and oversized/invalid responses. Independent strict Pydantic validation checks

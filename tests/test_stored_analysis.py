@@ -135,6 +135,61 @@ async def test_failure_provenance_is_saved_and_replayed_without_a_second_call(ob
         await client.aclose()
 
 
+@pytest.mark.parametrize("output_limit,content_kind", [
+    (1024, "empty"), (1024, "complete"), (4096, "partial"),
+])
+async def test_reasoning_exhausted_generation_is_rejected_and_replayed_without_retry(
+    observed, settings, output_limit, content_kind,
+):
+    ids = [observation_rows()[0]["id"]]
+    payload = await load_stored_observations(observed, SEED_ROUTE_ID, ids)
+    response = await envelope(payload)
+    response["choices"][0]["finish_reason"] = "length"
+    if content_kind == "empty":
+        response["choices"][0]["message"]["content"] = ""
+    elif content_kind == "partial":
+        response["choices"][0]["message"]["content"] = '{"pattern_summary":'
+    response["usage"] = {
+        "prompt_tokens": 120, "completion_tokens": output_limit,
+        "total_tokens": 120 + output_limit,
+        "completion_tokens_details": {"reasoning_tokens": output_limit - 2},
+    }
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        body = json.loads(request.content)
+        assert body["reasoning_effort"] == "low"
+        assert body["max_completion_tokens"] == output_limit
+        return httpx.Response(200, json=response, headers={"x-request-id": "synthetic-truncation"})
+
+    client = MetaAIClient(meta_settings(
+        settings, meta_max_output_tokens=output_limit, meta_max_calls=1, meta_max_retries=0,
+    ), transport=httpx.MockTransport(handler))
+    try:
+        service = StoredAnalysisService(observed, client)
+        first = await service.analyze(SEED_ROUTE_ID, ids, "truncated-generation")
+        replay = await service.analyze(SEED_ROUTE_ID, ids, "truncated-generation")
+        assert first.output is replay.output is None
+        assert replay.provenance.id == first.provenance.id
+        assert len(calls) == client.calls_reserved == 1
+        async with observed.transaction() as session:
+            record = (await session.scalars(select(AIExtraction))).one()
+            assert record.run_state == "DONE"
+            assert record.parse_status == "NOT_ATTEMPTED"
+            assert record.validation_status == "UNEXTRACTED"
+            assert record.parsed_output is None
+            details = record.call_details
+            assert details["error_category"] == "incomplete_generation"
+            assert details["attempts"] == len(details["attempt_history"]) == 1
+            assert details["http_status"] == 200
+            assert details["provider_request_id"] == "synthetic-truncation"
+            assert json.loads(details["raw_provider_response"]) == response
+            assert details["attempt_history"][0]["raw_response"] == details["raw_provider_response"]
+    finally:
+        await client.aclose()
+
+
 async def test_concurrent_duplicate_claim_does_not_issue_another_request(observed, settings):
     entered, release = asyncio.Event(), asyncio.Event()
     payload = await load_stored_observations(observed, SEED_ROUTE_ID, [observation_rows()[0]["id"]])

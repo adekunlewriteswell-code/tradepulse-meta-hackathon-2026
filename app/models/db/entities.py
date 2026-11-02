@@ -1,4 +1,4 @@
-"""Foundation schema only: business actions and reward calculation are deferred."""
+"""Shared persistence schema for observations and explicitly simulated business actions."""
 
 from sqlalchemy import Boolean, CheckConstraint, ForeignKey, ForeignKeyConstraint, JSON, String, Text, UniqueConstraint, event
 from sqlalchemy.orm import Mapped, mapped_column

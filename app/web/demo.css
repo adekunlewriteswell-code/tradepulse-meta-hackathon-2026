@@ -9,6 +9,26 @@
   --lime:#dcee9a;
   --paper:#fffef9;
 }
+.workflow-form {margin:24px 0;padding:22px;background:var(--paper);border:1px solid var(--line);border-radius:12px;display:grid;gap:16px;}
+.workflow-form[hidden] {display:none;}
+.workflow-form label {display:grid;gap:7px;font-size:13px;line-height:1.6;}
+.workflow-form input,.workflow-form select {width:100%;min-width:0;border:1px solid var(--line);border-radius:7px;background:white;padding:10px;color:var(--green);font:inherit;}
+.workflow-form input[type=checkbox] {width:auto;justify-self:start;}
+.workflow-grid,.financial-comparison {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;}
+.financial-comparison {margin:28px 0;}
+.financial-comparison article {padding:20px;border:1px solid var(--line);border-radius:10px;background:var(--paper);}
+.financial-comparison h3 {font-size:16px;}
+.financial-comparison p {font-size:14px;}
+.financial-ledger,.economics-chart {grid-column:1/-1;padding:20px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin:0;}
+.financial-ledger {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;font-size:14px;}
+.financial-ledger dd {margin:0;font-variant-numeric:tabular-nums;}
+.economics-chart>div {display:grid;grid-template-columns:110px minmax(0,1fr) 140px;gap:14px;align-items:center;margin-top:12px;font-size:13px;}
+.economics-chart meter {width:100%;height:18px;accent-color:var(--green);}
+.mission-card {padding:24px 0;border-top:1px solid var(--line);overflow-wrap:anywhere;}
+.mission-card .primary-button {max-width:100%;white-space:normal;}
+.released-notice {display:block;padding:18px;background:var(--lime);border-radius:8px;}
+#commercial-view {margin-top:28px;}
+@media(max-width:800px) {.workflow-grid,.financial-comparison {grid-template-columns:1fr;}.economics-chart>div {grid-template-columns:80px minmax(0,1fr);}.economics-chart>div>span:last-child {grid-column:2;}.financial-ledger {font-size:12px;}}
 * {
   box-sizing:border-box;
 }

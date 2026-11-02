@@ -1,0 +1,213 @@
+{
+  "notice": "Reviewed structural derivative of a saved response. All provider-authored free text, identifiers and metadata have been replaced with synthetic placeholders.",
+  "analysis_input": {
+    "route_baseline_id": "synthetic-regression-route",
+    "observations": [
+      {
+        "id": "synthetic-regression-observation-001",
+        "retailer_id": "synthetic-regression-retailer-001",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 1"
+        ],
+        "stated_barrier": "Synthetic barrier 3"
+      },
+      {
+        "id": "synthetic-regression-observation-002",
+        "retailer_id": "synthetic-regression-retailer-002",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 2"
+        ],
+        "stated_barrier": "Synthetic barrier 4"
+      },
+      {
+        "id": "synthetic-regression-observation-003",
+        "retailer_id": "synthetic-regression-retailer-003",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 1"
+        ],
+        "stated_barrier": "Synthetic barrier 1"
+      },
+      {
+        "id": "synthetic-regression-observation-004",
+        "retailer_id": "synthetic-regression-retailer-004",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 2"
+        ],
+        "stated_barrier": "Synthetic barrier 5"
+      },
+      {
+        "id": "synthetic-regression-observation-005",
+        "retailer_id": "synthetic-regression-retailer-005",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 1"
+        ],
+        "stated_barrier": "Synthetic barrier 2"
+      },
+      {
+        "id": "synthetic-regression-observation-006",
+        "retailer_id": "synthetic-regression-retailer-006",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 2"
+        ],
+        "stated_barrier": "Synthetic barrier 3"
+      },
+      {
+        "id": "synthetic-regression-observation-007",
+        "retailer_id": "synthetic-regression-retailer-007",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 1"
+        ],
+        "stated_barrier": "Synthetic barrier 4"
+      },
+      {
+        "id": "synthetic-regression-observation-008",
+        "retailer_id": "synthetic-regression-retailer-008",
+        "menu_path": [
+          "2",
+          "1"
+        ],
+        "products": [
+          "Synthetic Product 2"
+        ],
+        "stated_barrier": "Synthetic barrier 1"
+      }
+    ]
+  },
+  "response": {
+    "extracted_products": [
+      "Synthetic Product 1",
+      "Synthetic Product 2"
+    ],
+    "intent_level": "conditional",
+    "stated_barriers": [
+      {
+        "barrier": "Synthetic barrier 3",
+        "evidence": "synthetic-regression-observation-001 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 4",
+        "evidence": "synthetic-regression-observation-002 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 1",
+        "evidence": "synthetic-regression-observation-003 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 5",
+        "evidence": "synthetic-regression-observation-004 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 2",
+        "evidence": "synthetic-regression-observation-005 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 3",
+        "evidence": "synthetic-regression-observation-006 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 4",
+        "evidence": "synthetic-regression-observation-007 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      },
+      {
+        "barrier": "Synthetic barrier 1",
+        "evidence": "synthetic-regression-observation-008 [EXPLANATION REDACTED]",
+        "confidence": 0.9
+      }
+    ],
+    "uncertainty_flags": [
+      "SYNTHETIC_REDACTED_FLAG_1",
+      "SYNTHETIC_REDACTED_FLAG_2",
+      "SYNTHETIC_REDACTED_FLAG_3",
+      "SYNTHETIC_REDACTED_FLAG_4"
+    ],
+    "pattern_summary": "Synthetic redacted structural regression fixture.",
+    "activation_strategies": [
+      {
+        "strategy": "Synthetic manager review option 1.",
+        "evidence_basis": [
+          "synthetic-regression-observation-001 [EXPLANATION REDACTED]",
+          "synthetic-regression-observation-006 [EXPLANATION REDACTED]"
+        ],
+        "confidence": 0.4,
+        "preconditions": [
+          "Synthetic precondition 1",
+          "Synthetic precondition 2"
+        ],
+        "risks": [
+          "Synthetic risk 1",
+          "Synthetic risk 2"
+        ]
+      },
+      {
+        "strategy": "Synthetic manager review option 2.",
+        "evidence_basis": [
+          "synthetic-regression-observation-002 [EXPLANATION REDACTED]",
+          "synthetic-regression-observation-007 [EXPLANATION REDACTED]",
+          "synthetic-regression-observation-004 [EXPLANATION REDACTED]"
+        ],
+        "confidence": 0.35,
+        "preconditions": [
+          "Synthetic precondition 1",
+          "Synthetic precondition 2"
+        ],
+        "risks": [
+          "Synthetic risk 1",
+          "Synthetic risk 2"
+        ]
+      },
+      {
+        "strategy": "Synthetic manager review option 3.",
+        "evidence_basis": [
+          "synthetic-regression-observation-003 [EXPLANATION REDACTED]",
+          "synthetic-regression-observation-008 [EXPLANATION REDACTED]",
+          "synthetic-regression-observation-005 [EXPLANATION REDACTED]"
+        ],
+        "confidence": 0.35,
+        "preconditions": [
+          "Synthetic precondition 1",
+          "Synthetic precondition 2"
+        ],
+        "risks": [
+          "Synthetic risk 1",
+          "Synthetic risk 2"
+        ]
+      }
+    ],
+    "uncertainty_statement": "SYNTHETIC REDACTED FIXTURE: no inference or commercial outcome."
+  }
+}

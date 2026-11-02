@@ -76,8 +76,9 @@ server persistence but prevents automatic selection recovery after refresh.
   its separately authorized CLI path and cannot be selected by this browser workflow.
 - AI inference still runs outside database transactions, through StoredAnalysisService.
   Completed failure replay does not rerun inference. Pending claims require reconciliation.
-- All reviews are demo-only records with not_mission_approval=true. No business mission,
-  commitment, purchase or reward is created by this workflow.
+- Reviews remain demo-only records with not_mission_approval=true. Separate protected
+  actions now create synthetic missions, commitments, explicitly simulated purchases
+  and simulated reward releases; no real payment or purchase verification occurs.
 
 This is not an authenticated internet-facing management system. Use one local process;
 do not bind to external interfaces, reverse proxy it, tunnel it or deploy it publicly.
@@ -92,12 +93,12 @@ API calls require a recognized browser capability; every POST also checks Origin
 | Method | Path after /demo/api | Purpose |
 |---|---|---|
 | GET | /bootstrap | Establish local browser capability |
-| GET | /overview | Route, retailers, newest 100 observations, newest 20 offline analyses |
+| GET | /overview | Route, retailers, newest 100 observations, newest 20 saved analyses, including validated live results |
 | POST | /sessions | Begin or replay a browser-bound session |
 | GET | /sessions/{uuid} | Retrieve owned server state |
 | POST | /sessions/{uuid}/input | Versioned digit, Back or Cancel action |
 | POST | /analyses | Select 1-8 unique stored observations; mock or simulated only |
-| GET | /analyses/{id} | Validated offline result, safe status and local review history |
+| GET | /analyses/{id} | Revalidated saved result, safe status and local review history |
 | GET | /evidence/{id}/trace | Inspect persisted numbered-menu interaction log |
 | POST | /reviews | Append an explicitly acknowledged demo-only decision |
 
@@ -105,3 +106,72 @@ Demo endpoints are excluded from the default OpenAPI surface. Browser writes req
 X-Demo-CSRF, with the token from bootstrap, and exact matching Origin. Menu inputs are
 single ASCII digits. Review decisions are reviewed, planning or rejected, with demo_only
 set to true. No production mission/reward endpoints are implemented here.
+
+## Complete local mission demonstration
+
+Saved `meta_live` results appear in the manager's analysis history when present in the
+selected local database. They are attributed to Meta Model API and the recorded model,
+and are labelled GENUINE META / SAVED. Raw provider traces, authorization headers and
+credentials are never returned. Current observations, the original request, original
+response and parsed output are checked again before display, review or mission use.
+A changed observation or incompatible output blocks the action. Mock and simulated
+results retain their separate labels; the browser can only initiate offline inference.
+The public source ZIP excludes all genuine responses and local databases, so a fresh
+installation has no saved live record. It can demonstrate the full journey with mock
+or simulated intelligence, clearly labelled as such.
+
+1. Capture a synthetic retailer observation with the numbered menu, or inspect existing
+   persisted evidence cited by a saved validated live brief. A saved live brief applies
+   only to its original evidence; a newly captured observation is not silently substituted.
+2. Select the saved brief, inspect citations, confidence, preconditions, risks and
+   uncertainty, and explicitly choose Accept for planning.
+3. Select Draft an evidence-linked mission. Choose one cited observation and a supplied
+   product, set integer quantities, a bounded incentive rate (up to 2000 basis points),
+   reward cap, positive minimum contribution and margin guardrail. Save the draft.
+4. Explicitly approve and activate the synthetic mission as the local demonstration
+   manager. Drafting or accepting a recommendation cannot activate it.
+5. Record the fictional retailer's commitment. Deliberately enter an order reference,
+   unit price, COGS, fulfillment cost and order-level incremental operating cost. Check
+   the explicit simulation acknowledgment and save the simulated purchase.
+6. Inspect qualified/unqualified retailers and exact economics. Only when all deterministic
+   checks pass does a separate simulated-reward authorization action become available.
+7. Inspect the released simulated reward and financial comparison. No real payment is made.
+
+Mission windows are at most 30 days. The focused UI targets one evidenced retailer;
+the bounded backend supports up to eight selected observations and distinct-retailer
+targets. Each browser owns at most 50 missions. Quantities, monetary inputs and scenario
+arithmetic are bounded; API money is strictly integer kobo. Browser NGN conversion uses
+decimal strings and integer arithmetic. A commitment is provisional, not a verified sale.
+
+For each retailer, reward is `floor(aggregate revenue * incentive_bps / 10000)` kobo.
+Contribution subtracts COGS, fulfillment, order-level operating costs and the proposed
+reward from revenue. Release requires the distinct qualifying-retailer target, valid
+mission/approval status, dates, product, evidence, cumulative committed quantity, reward
+cap, positive minimum contribution and contribution margin. Margin comparison uses
+integer cross multiplication. Baseline route counts and financial fields never change.
+
+Projected rewards are reserved in profitability checks. The scenario ledger books only
+released simulated rewards as expense, and labels pending projections separately.
+Baseline plus simulation is an arithmetic illustration, not measured activation,
+observed commercial growth or causal evidence. There is no real purchase verification,
+payment integration, genuine manager authentication or real retailer identity verification.
+
+Plans and operation receipts/results use existing append-only audit events. Approval
+binds a hash of mission parameters; changed parameters fail closed. Operation UUIDs are
+browser-bound, duplicate orders bind immutable input values, cumulative quantities cannot
+exceed commitments, and a unique release per mission prevents duplicate reward expense.
+Receipts, business state and result audit commit together or roll back together. Same-key
+replay returns the original receipt, including after restart. An uncertain browser write
+retains its payload for an explicit retry. A lost/expired cookie cannot regain write
+ownership by typing a manager name; evidence remains locally inspectable.
+
+Additional protected demo endpoints:
+
+| Method | Path after /demo/api | Purpose |
+|---|---|---|
+| GET | /financials | Owned missions, immutable baseline and simulated scenario ledger |
+| POST | /missions | Draft from a reviewed saved strategy and exact source evidence |
+| POST | /missions/{id}/approve | Explicit human approval and activation |
+| POST | /missions/{id}/commitments | Record a qualifying retailer commitment |
+| POST | /missions/{id}/purchases | Deliberate simulated purchase, with exact kobo costs |
+| POST | /missions/{id}/release | Human action; deterministic guards authorize simulation only |

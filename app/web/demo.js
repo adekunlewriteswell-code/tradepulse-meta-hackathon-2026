@@ -18,11 +18,12 @@
   function view(name) {
     const manager = name === 'manager';
     $('retailer-view').hidden = manager; $('manager-view').hidden = !manager;
+    $('commercial-view').hidden = !manager;
     for (const n of ['retailer', 'manager']) {const b = $('nav-' + n); b.classList.toggle('active', n === name); n === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');}
     $('page-title').textContent = manager ? 'A signal is a starting point.\nEvidence makes it useful.' : 'Every inactive retailer\nhas a reason.';
     $('page-description').textContent = manager ? 'Understand retailer-stated barriers. Inspect the evidence. Review an advisory plan.' : 'A simple numbered menu. A traceable observation. A clearer starting point for the route manager.';
     $('chapter-number').textContent = manager ? '02' : '01'; $('chapter-label').textContent = manager ? 'UNDERSTAND THE SIGNAL' : 'CAPTURE THE SIGNAL';
-    if (manager && state.csrf) refresh().catch(e => error(e.message));
+    if (manager && state.csrf) Promise.all([refresh(), refreshFinancials()]).catch(e => error(e.message));
   }
   function sessionControls() {
     const active = state.session && !state.session.terminal;
@@ -108,6 +109,10 @@
     for (const a of o.analyses) {const option = node('option', a.source + ' · ' + a.status + ' · ' + a.id.slice(0, 8)); option.value = a.id; $('history').append(option);}
     $('history').value = current;
     renderEvidence(); renderSession();
+    if (!current) {
+      const savedLive = o.analyses.find(a => a.source === 'meta_live' && a.status === 'EXTRACTION_VALID');
+      if (savedLive) {const data = await api('analyses/' + encodeURIComponent(savedLive.id)); $('history').value = savedLive.id; renderAnalysis(data);}
+    }
   }
   async function inspectEvidence(id) {
     const row = state.overview?.observations.find(r => r.id === id);
@@ -120,8 +125,8 @@
   function renderAnalysis(data) {
     state.analysis = data;
     const result = $('analysis-result'); result.replaceChildren();
-    $('mode-label').textContent = data.mode.toUpperCase() + ' · OFFLINE';
-    const meta = node('div', undefined, 'result-meta'); meta.append(node('span', data.status), node('span', data.model), node('span', data.run_state || 'LEGACY')); result.append(meta);
+    $('mode-label').textContent = data.mode === 'live' ? 'GENUINE META · SAVED' : data.mode.toUpperCase() + ' · OFFLINE';
+    const meta = node('div', undefined, 'result-meta'); meta.append(node('span', data.status), node('span', data.provider), node('span', data.model), node('span', data.run_state || 'LEGACY')); result.append(meta);
     if (!data.output) {result.append(node('div', 'Analysis failed or is incomplete. ' + (data.error_category || data.status) + '. No recommendation was fabricated. Replaying this key returns the recorded outcome.', 'notice error')); return;}
     result.append(node('p', 'ADVISORY INTERPRETATION - NOT A VERIFIED COMMERCIAL FACT', 'eyebrow'), node('p', data.output.pattern_summary, 'analysis-summary'), node('p', 'Inferred intent: ' + data.output.intent_level + '. This is not verified demand.', 'small muted'));
     result.append(node('p', 'Product signals: ' + data.output.extracted_products.join(', '), 'small muted'));
@@ -140,6 +145,8 @@
       for (const [decision, label] of [['reviewed', 'Mark reviewed'], ['planning', 'Accept for planning'], ['rejected', 'Reject']]) {const button = node('button', label); button.type = 'button'; button.dataset.decision = decision; button.addEventListener('click', () => review(data.id, index, decision, button)); controls.append(button);}
       const latest = data.reviews.find(r => r.strategy_index === index);
       article.append(controls, node('p', latest ? 'Saved demo decision: ' + latest.decision + '. Not mission authorization.' : 'Demo-only. No authenticated manager identity or financial authorization.', 'review-status')); result.append(article);
+      const plan = node('button', 'Draft an evidence-linked mission', 'text-button'); plan.type = 'button'; plan.dataset.planStrategy = String(index);
+      plan.addEventListener('click', () => openPlanner(data, index)); article.append(plan);
     });
     const uncertainty = node('div', undefined, 'uncertainty'); uncertainty.append(node('strong', 'WHAT WE DO NOT KNOW'), node('p', data.output.uncertainty_statement));
     for (const flag of data.output.uncertainty_flags) uncertainty.append(node('p', flag)); result.append(uncertainty);
@@ -161,6 +168,94 @@
     const body = read(key) || {request_id: crypto.randomUUID(), analysis_id: id, strategy_index: index, decision, demo_only: true}; store(key, body); button.disabled = true;
     try {await api('reviews', body); store(key, null); renderAnalysis(await api('analyses/' + encodeURIComponent(id))); error('');} catch (e) {error(e.message + ' The same review key is retained for retry.');} finally {button.disabled = false;}
   }
+  const workflowKey = 'tradepulse.demo.pending-workflow';
+  const integer = id => {const value = Number($(id).value); if (!Number.isSafeInteger(value)) throw new Error('Use a whole number.'); return value;};
+  function kobo(value) {
+    if (!/^\d+(\.\d{1,2})?$/.test(value)) throw new Error('Use an NGN amount with at most two decimal places.');
+    const [whole, fraction = ''] = value.split('.'); const result = BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0'));
+    if (result > 10000000000n) throw new Error('Amount exceeds this bounded demonstration.');
+    return Number(result);
+  }
+  function ngn(value) {const v = BigInt(value), a = v < 0n ? -v : v; return (v < 0n ? '-₦' : '₦') + (a / 100n).toLocaleString('en-NG') + '.' + String(a % 100n).padStart(2, '0');}
+  function openPlanner(data, index) {
+    state.planning = {analysis_id: data.id, strategy_index: index};
+    const strategy = data.output.activation_strategies[index]; $('planning-strategy').textContent = strategy.strategy;
+    const select = $('mission-evidence'); select.replaceChildren();
+    for (const id of strategy.evidence_basis) {const observation = state.overview.observations.find(o => o.id === id); if (!observation) continue;
+      const option = node('option', observation.retailer_id + ' · ' + observation.barrier); option.value = id; select.append(option);}
+    if (!select.options.length) {error('The cited evidence is not in the current inbox. Refresh or inspect the saved observation.'); return;}
+    $('mission-form').hidden = false; plannerProducts(); $('mission-form').scrollIntoView({block: 'center', behavior: 'smooth'});
+  }
+  function plannerProducts() {const row = state.overview.observations.find(o => o.id === $('mission-evidence').value); $('mission-product').replaceChildren(); for (const p of row?.products || []) {const option = node('option', p); option.value = p; $('mission-product').append(option);}}
+  async function workflow(path, input) {
+    if (state.workflowBusy) return;
+    const pending = input ? {path, body: {request_id: crypto.randomUUID(), demo_only: true, ...input}} : read(workflowKey);
+    if (!pending) return;
+    if (input && read(workflowKey)) {error('Retry the pending mission action before starting another action.'); return;}
+    state.workflowBusy = true; store(workflowKey, pending); $('workflow-status').textContent = 'Saving the explicit local demonstration action…';
+    try {const result = await api(pending.path, pending.body); store(workflowKey, null); error('');
+      if (pending.path === 'missions') $('mission-form').hidden = true;
+      await refreshFinancials(); $('workflow-status').textContent = 'Saved ' + (result.status || 'simulated action') + '. No real payment or commercial event.';
+    } catch(e) {error(e.message); if (e.status && e.status < 500) store(workflowKey, null); $('workflow-status').textContent = 'Action rejected or unavailable; no success is assumed.';}
+    finally {state.workflowBusy = false; $('retry-workflow').hidden = !read(workflowKey);}
+  }
+  async function refreshFinancials() {
+    const data = await api('financials'); const compare = $('financial-comparison'); compare.replaceChildren();
+    for (const [title, values] of [['Original synthetic baseline', data.baseline], ['Explicitly simulated scenario', data.scenario], ['Baseline plus simulation', data.baseline_plus_simulation]]) {
+      const card = node('article'); card.append(node('h3', title), node('p', 'Revenue ' + ngn(values.revenue_minor)), node('p', 'Contribution ' + ngn(values.contribution_minor)));
+      if (values.active_retailers !== undefined) card.append(node('p', '10 total · 2 active · 8 inactive', 'small muted')); compare.append(card);
+    }
+    const ledger = node('dl', undefined, 'financial-ledger');
+    for (const [key, label] of [['revenue_minor','Incremental revenue'],['cogs_minor','Incremental COGS'],['fulfillment_minor','Fulfillment cost'],['operating_minor','Incremental operating cost'],['reward_minor','Released simulated reward expense'],['contribution_minor','Incremental contribution']]) ledger.append(node('dt', label), node('dd', ngn(data.scenario[key])));
+    compare.append(ledger);
+    const chart = node('figure', undefined, 'economics-chart'); chart.append(node('figcaption', 'Simulated scenario economics (NGN)'));
+    for (const [key, label] of [['revenue_minor', 'Revenue'], ['cogs_minor', 'COGS'], ['contribution_minor', 'Contribution']]) {
+      const meter = node('meter'); meter.min = 0; meter.max = Math.max(1, data.scenario.revenue_minor, data.scenario.cogs_minor, Math.abs(data.scenario.contribution_minor)); meter.value = Math.abs(data.scenario[key]); meter.setAttribute('aria-label', label + ' ' + ngn(data.scenario[key]));
+      const row = node('div'); row.append(node('span', label), meter, node('span', ngn(data.scenario[key]))); chart.append(row);
+    } compare.append(chart);
+    const list = $('mission-list'); list.replaceChildren(); if (!data.missions.length) list.append(node('p', 'No missions drafted in this browser. Review a saved recommendation and accept it for planning first.', 'muted'));
+    for (const mission of data.missions) renderMission(list, mission);
+    $('retry-workflow').hidden = !read(workflowKey);
+  }
+  function missionButton(parent, label, action, name) {const button = node('button', label, 'primary-button'); button.type = 'button'; button.dataset.workflowAction = name; button.addEventListener('click', action); parent.append(button);}
+  function renderMission(parent, mission) {
+    const card = node('article', undefined, 'mission-card'); card.dataset.missionId = mission.id;
+    card.append(node('p', mission.status + ' · SYNTHETIC MISSION', 'eyebrow'), node('h3', mission.name), node('p', mission.product + ' · minimum ' + mission.minimum_quantity + ' units'),
+      node('p', 'Window: ' + mission.starts_at + ' to ' + mission.ends_at, 'small muted'),
+      node('p', mission.approved_by ? 'Explicit approval: local demo manager · ' + mission.approved_at : 'Draft only. No approval or activation.', 'small'),
+      node('p', 'Qualifying retailers: ' + mission.qualified_retailer_ids.length + ' / target ' + mission.target + ' · Unqualified: ' + mission.unqualified_retailer_ids.length, 'qualification'),
+      node('p', 'Qualified: ' + (mission.qualified_retailer_ids.join(', ') || 'none') + '. Unqualified: ' + (mission.unqualified_retailer_ids.join(', ') || 'none') + '.', 'small'),
+      node('p', 'Projected reward ' + ngn(mission.totals.reward_minor) + ' · contribution after reward ' + ngn(mission.totals.contribution_minor)),
+      node('p', 'Reward cap ' + ngn(mission.reward_cap_minor) + ' · minimum contribution ' + ngn(mission.minimum_contribution_minor) + ' · margin guardrail ' + mission.margin_guardrail_bps + ' bps', 'small'));
+    for (const reason of mission.reasons) card.append(node('p', reason, 'small muted'));
+    const path = 'missions/' + encodeURIComponent(mission.id);
+    if (mission.status === 'DRAFT') missionButton(card, 'I approve and activate this synthetic mission', () => workflow(path + '/approve', {human_approved: true}), 'approve');
+    if (mission.status === 'ACTIVE' && !mission.commitments.length) missionButton(card, 'Record retailer commitment (demonstration)', () => workflow(path + '/commitments', {observation_id: mission.observation_ids[0], quantity: mission.minimum_quantity}), 'commit');
+    for (const commitment of mission.commitments) card.append(node('p', 'Commitment: ' + commitment.retailer_id + ' · ' + commitment.quantity + ' units · ' + commitment.status, 'small commitment-entry'));
+    for (const purchase of mission.purchases) card.append(node('p', 'SIMULATED PURCHASE: ' + purchase.order_ref + ' · ' + purchase.quantity + ' units', 'small purchase-entry'));
+    if (mission.status === 'ACTIVE' && mission.commitments.length && !mission.purchases.length) {
+      const form = node('form', undefined, 'workflow-form purchase-form'); const fields = {};
+      for (const [key, label, value] of [['order_ref','Synthetic order reference','DEMO-ORDER-001'], ['unit_price_minor','Unit price (NGN)','100.00'], ['unit_cost_minor','Unit COGS (NGN)','60.00'], ['fulfillment_per_unit_minor','Fulfillment per unit (NGN)','5.00'], ['other_incremental_costs_minor','Other operating cost for this order (NGN)','10.00']]) {
+        const l = node('label', label); const input = node('input'); input.name = key; input.value = value; input.required = true; input.maxLength = 60; fields[key] = input; l.append(input); form.append(l);
+      }
+      const acknowledge = node('input'); acknowledge.type = 'checkbox'; acknowledge.required = true; acknowledge.name = 'simulation_ack';
+      const label = node('label', 'I deliberately enter a simulated purchase. No real sale is being verified.'); label.prepend(acknowledge); form.append(label);
+      const submit = node('button', 'Save explicitly simulated purchase', 'primary-button'); submit.type = 'submit'; form.append(submit);
+      form.addEventListener('submit', event => {event.preventDefault(); try {const body = {commitment_id: mission.commitments[0].id, product: mission.product, quantity: mission.commitments[0].quantity, purchased_at: new Date().toISOString(), simulated_purchase: acknowledge.checked}; for (const [key, input] of Object.entries(fields)) body[key] = key === 'order_ref' ? input.value : kobo(input.value); workflow(path + '/purchases', body);} catch(e) {error(e.message);}}); card.append(form);
+    }
+    if (mission.reward_released) card.append(node('strong', 'SIMULATED REWARD RELEASED · ' + ngn(mission.reward_released_minor), 'released-notice'));
+    else if (mission.release_allowed) missionButton(card, 'I authorize this simulated reward — no payment', () => workflow(path + '/release', {human_approved: true}), 'release');
+    parent.append(card);
+  }
+  $('mission-evidence').addEventListener('change', plannerProducts);
+  $('mission-form').addEventListener('submit', event => {event.preventDefault(); try {
+    const start = new Date(Date.now() - 1000), end = new Date(start.getTime() + integer('mission-days') * 86400000);
+    workflow('missions', {...state.planning, name: $('mission-name').value, observation_ids: [$('mission-evidence').value], product: $('mission-product').value,
+      target: 1, minimum_quantity: integer('mission-quantity'), starts_at: start.toISOString(), ends_at: end.toISOString(),
+      incentive_bps: integer('mission-rate'), margin_guardrail_bps: integer('mission-margin'), reward_cap_minor: kobo($('mission-cap').value), minimum_contribution_minor: kobo($('mission-profit').value)});
+  } catch(e) {error(e.message);}});
+  $('refresh-financials').addEventListener('click', () => refreshFinancials().catch(e => error(e.message)));
+  $('retry-workflow').addEventListener('click', () => workflow());
   $('nav-retailer').addEventListener('click', () => view('retailer')); $('nav-manager').addEventListener('click', () => view('manager')); $('view-manager').addEventListener('click', () => view('manager'));
   $('dial').addEventListener('click', startSession); $('back').addEventListener('click', () => send('back')); $('cancel').addEventListener('click', () => send('cancel'));
   document.querySelectorAll('[data-digit]').forEach(button => button.addEventListener('click', () => send('input', button.dataset.digit)));

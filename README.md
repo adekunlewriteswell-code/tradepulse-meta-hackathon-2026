@@ -1,4 +1,4 @@
-# TradePulse AI - Milestone 3
+# TradePulse AI - Milestone 4
 
 TradePulse AI explores evidence-based activation of inactive FMCG retailers.
 This original implementation for the Meta Global AI Developer Hackathon 2026,
@@ -6,8 +6,11 @@ started October 27, provides a local FastAPI foundation, synthetic SQLite data,
 an injectable mock, and an offline-tested Meta HTTP adapter operating on persisted
 synthetic observations. A local browser demo now connects a numbered-menu retailer
 session to a manager's evidence-linked activation brief and demo-only review.
-Mission approval, purchase verification and rewards remain future work.
-Genuine Meta inference requires separate authorization and has not been run.
+The local demonstration now connects saved, validated Meta intelligence to explicit
+human mission approval, commitments, simulated purchases, deterministic financial
+guardrails and simulated reward release. Genuine Meta inference has succeeded during
+local development; private analysis records and provider responses are not distributed.
+The browser displays saved live intelligence without making new live requests.
 
 All competition source was written for this entry. It is independent of existing
 commercial products; no commercial code, data, schemas, or credentials are included.
@@ -99,7 +102,7 @@ the file, which is read only from the workspace root.
 | `META_MODEL` | `muse-spark-1.3` | Configurable model; endpoint is restricted to the trusted Meta HTTPS host |
 
 The Meta adapter is implemented. Offline mock/simulated workflows need no real credential.
-No genuine model call, billing change or deployment was performed. See
+No new genuine model call, billing change or deployment is needed to run this demo. See
 [AI integration](docs/ai_integration.md) for all bounds, failure rules and limitations.
 
 ## Seed and persistence
@@ -152,8 +155,8 @@ of ambient Decimal precision/exponent settings. Negative contribution values
 require explicit `signed=True` on the conversion helpers; price/cost/reward
 columns remain nonnegative. The baseline's guarded SQL CASE checks each
 subtraction's bounds before evaluating it, preventing overflow promotion to
-REAL. It never silently rounds. Financial calculations use Decimal; no reward
-calculation is implemented yet.
+REAL. It never silently rounds. Financial decisions use exact integer kobo. Rewards floor once per retailer
+after aggregating that retailer's revenue; splitting orders does not change the reward.
 
 Rates use exact integer basis points (`500` = 5%); quantities use integers.
 Audit details and profitability snapshots reject JSON real numbers in SQLite
@@ -166,8 +169,8 @@ The synthetic monthly baseline is NGN 2,000,000 revenue minus NGN 1,400,000 COGS
 NGN 100,000 fulfillment, NGN 0 incentives, and NGN 50,000 other costs = NGN 450,000
 contribution. This is an arbitrary route baseline for the two existing active
 retailers; the eight inactive retailers have no seeded purchases. It is not an
-estimate of real performance. Baseline comparison and mission profitability
-evaluation belong to later milestones.
+estimate of real performance. The dashboard shows this baseline separately from
+the explicitly simulated scenario, and displays their arithmetic sum without changing history.
 
 NGN is the current fixture currency. The monetary amounts are fictional naira
 values selected for this demonstration, not an exchange-rate conversion.
@@ -210,11 +213,12 @@ not manager authentication or permission to approve a mission.
 
 Default startup exposes only read-only HTTP routes. The explicitly enabled local
 browser demo adds loopback-only, CSRF-protected demonstration endpoints.
-Mission approval, manager authentication,
-state transition enforcement, returning existing rows on duplicate HTTP
-requests, reward eligibility, and atomic reward-release-plus-audit orchestration
-remain deferred. No purchase/reward write endpoint is exposed without those
-future gates. Database constraints are the foundation for those services.
+The demo requires a separate human approval action before activation and another
+explicit action before a simulated reward. Operation receipts, writes and audit
+results commit atomically; duplicate keys replay across restarts. Reward release
+requires qualifying purchases, a distinct retailer target, a reward cap, positive
+minimum contribution and a contribution-margin guardrail. The local browser
+capability is demonstration-only, not genuine retailer or manager authentication.
 
 ## Stored observations and Meta integration
 
@@ -264,4 +268,5 @@ technical documentation. It excludes internal planning, engineering reports,
 local databases, virtual environments, caches, credentials, and test artifacts.
 No license has been selected; licensing and final organizer requirements remain
 pending. Package preparation does not constitute deployment or completion of
-the competition's real-Meta-inference requirement.
+all organizer or submission requirements. No private live response or database
+is included; a fresh extraction starts with offline data only.

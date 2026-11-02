@@ -22,7 +22,7 @@
   </aside>
   <main>
     <header class="topbar"><span>WORKSPACE <span class="slash">/</span> Synthetic route 001</span><span class="local-tag"><span class="status-dot"></span> LOCAL ONLY</span></header>
-    <div class="demo-notice"><strong>SYNTHETIC DEMONSTRATION</strong><span>Invented retailers and observations. No purchases, mission approvals or rewards.</span></div>
+    <div class="demo-notice"><strong>SYNTHETIC DEMONSTRATION</strong><span>Invented retailers. Purchases and rewards are explicitly simulated; approvals are demonstration-only.</span></div>
     <div id="global-error" class="notice error" role="alert" hidden></div>
     <div class="intro"><div><p class="eyebrow">FROM A RETAILER SIGNAL TO A BETTER QUESTION</p><h1 id="page-title">Every inactive retailer<br>has a reason.</h1><p id="page-description" class="description">A simple numbered menu. A traceable observation.<br>A clearer starting point for the route manager.</p></div><div class="chapter"><span id="chapter-number">01</span><p id="chapter-label">CAPTURE THE SIGNAL</p></div></div>
     <section id="retailer-view" aria-label="Retailer USSD simulator">
@@ -53,9 +53,34 @@
     </section>
     <section id="manager-view" aria-label="Manager intelligence" hidden>
       <div class="route-metrics"><article><p>FICTIONAL ROUTE</p><strong>10 <span>retailers</span></strong><small>One synthetic route</small></article><article><p>ORIGINAL BASELINE</p><strong>2 <span>active</span><span class="metric-divider">/</span>8 <span>inactive</span></strong><small>Fixed history, not activation measured today</small></article><article><p>STORED SIGNALS</p><strong id="observation-count">0</strong><small>Self-reported observations, not purchases</small></article></div>
-      <div class="manager-layout"><section class="panel evidence-panel"><div class="panel-heading"><div><p class="eyebrow">01 / THE RETAILER'S WORDS</p><h2>Evidence inbox</h2></div><button id="refresh" class="icon-button" type="button" aria-label="Refresh saved evidence">↻</button></div><p class="muted small">Select up to 8 saved observations. Only compatible synthetic records can be analyzed. Showing the newest 100.</p><div id="evidence-list" class="evidence-list" aria-live="polite"></div><div class="analysis-controls"><label for="mode">Inference mode</label><select id="mode"><option value="simulated">Simulated Meta HTTP transport</option><option value="mock">Deterministic mock</option></select><p class="field-note">Both are offline. Genuine Meta inference has not been performed.</p><button id="analyze" class="primary-button" type="button" disabled>Analyze selected evidence <span id="selected-count">0 / 8</span></button><button id="retry-analysis" class="text-button" type="button" hidden>Retry or reconcile the same analysis key</button><p id="analysis-status" class="small muted" role="status">Choose an observation to begin.</p></div></section>
-      <section class="panel intelligence-panel"><div class="panel-heading"><div><p class="eyebrow">02 / THE MODEL'S INTERPRETATION</p><h2>Activation brief</h2></div><span class="mode-badge" id="mode-label">NO ANALYSIS</span></div><label for="history" class="small">Saved offline analyses</label><select id="history"><option value="">Select a saved analysis</option></select><div id="analysis-result" aria-live="polite"><div class="empty-state"><span aria-hidden="true">◈</span><h3>Evidence before action.</h3><p>Select retailer observations to create a cautious, cited activation brief.</p></div></div></section></div>
+      <div class="manager-layout"><section class="panel evidence-panel"><div class="panel-heading"><div><p class="eyebrow">01 / THE RETAILER'S WORDS</p><h2>Evidence inbox</h2></div><button id="refresh" class="icon-button" type="button" aria-label="Refresh saved evidence">↻</button></div><p class="muted small">Select up to 8 saved observations. Only compatible synthetic records can be analyzed. Showing the newest 100.</p><div id="evidence-list" class="evidence-list" aria-live="polite"></div><div class="analysis-controls"><label for="mode">Inference mode</label><select id="mode"><option value="simulated">Simulated Meta HTTP transport</option><option value="mock">Deterministic mock</option></select><p class="field-note">New browser inference is offline. Saved, validated genuine Meta results appear in history when available.</p><button id="analyze" class="primary-button" type="button" disabled>Analyze selected evidence <span id="selected-count">0 / 8</span></button><button id="retry-analysis" class="text-button" type="button" hidden>Retry or reconcile the same analysis key</button><p id="analysis-status" class="small muted" role="status">Choose an observation to begin.</p></div></section>
+      <section class="panel intelligence-panel"><div class="panel-heading"><div><p class="eyebrow">02 / THE MODEL'S INTERPRETATION</p><h2>Activation brief</h2></div><span class="mode-badge" id="mode-label">NO ANALYSIS</span></div><label for="history" class="small">Saved analyses: genuine live, simulated and mock</label><select id="history"><option value="">Select a saved analysis</option></select><div id="analysis-result" aria-live="polite"><div class="empty-state"><span aria-hidden="true">◈</span><h3>Evidence before action.</h3><p>Select retailer observations to create a cautious, cited activation brief.</p></div></div></section></div>
       <details class="route-details"><summary>Inspect the fictional route and baseline</summary><div class="baseline-notice"><strong>SYNTHETIC FINANCIAL BASELINE</strong><p>Monthly revenue <span id="baseline-revenue"></span> · Contribution <span id="baseline-contribution"></span>. Fictional historical amounts, not new commercial outcomes.</p></div><div id="retailer-list" class="retailer-grid"></div></details>
+    </section>
+    <section id="commercial-view" class="panel" hidden aria-label="Synthetic mission and financial demonstration">
+      <div class="panel-heading"><div><p class="eyebrow">03 / HUMAN DECISIONS, EXACT ECONOMICS</p><h2>From a recommendation to a measured scenario.</h2></div><button id="refresh-financials" class="text-button" type="button">Refresh finances</button></div>
+      <p class="notice">Local demonstration manager only. This browser capability is not authenticated business authority. Every purchase and reward below is explicitly simulated. AI cannot approve a mission or authorize a reward.</p>
+      <form id="mission-form" hidden class="workflow-form">
+        <h3>Draft a synthetic incentive mission</h3><p id="planning-strategy" class="small"></p>
+        <label>Mission name<input id="mission-name" value="Synthetic smaller-order trial" maxlength="120" required></label>
+        <label>Qualifying retailer observation<select id="mission-evidence" required></select></label>
+        <label>Qualifying product<select id="mission-product" required></select></label>
+        <div class="workflow-grid">
+          <label>Minimum / committed units<input id="mission-quantity" type="number" min="1" max="100000" value="10" required></label>
+          <label>Incentive rate (basis points; 500 = 5%)<input id="mission-rate" type="number" min="0" max="2000" value="500" required></label>
+          <label>Minimum contribution margin (basis points)<input id="mission-margin" type="number" min="0" max="10000" value="1000" required></label>
+          <label>Reward cap (NGN)<input id="mission-cap" inputmode="decimal" value="500.00" required></label>
+          <label>Minimum positive contribution (NGN)<input id="mission-profit" inputmode="decimal" value="1.00" required></label>
+          <label>Window (days from draft, maximum 30)<input id="mission-days" type="number" min="1" max="30" value="7" required></label>
+        </div>
+        <p class="small muted">This focused form targets one evidenced retailer. The mission starts when drafted and remains inactive until you explicitly approve it.</p>
+        <button class="primary-button" type="submit">Save draft without activating</button>
+      </form>
+      <div id="financial-comparison" class="financial-comparison" aria-live="polite"></div>
+      <p class="small muted">Baseline plus simulation is an arithmetic scenario, not observed growth or causal proof. Baseline retailer counts remain 10 total, 2 active and 8 inactive. Proposed rewards are reserved in guardrail calculations; only released simulated rewards appear as expense.</p>
+      <div id="mission-list" aria-live="polite"></div>
+      <button id="retry-workflow" class="text-button" type="button" hidden>Retry the same saved mission action</button>
+      <p id="workflow-status" class="small" role="status"></p>
     </section>
     <footer class="page-footer"><span>TradePulse AI <span aria-hidden="true">/</span> Listen. Understand. Plan.</span><span>Observations are not purchases. Recommendations are not approvals.</span></footer>
   </main>
